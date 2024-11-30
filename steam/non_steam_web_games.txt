@@ -1,0 +1,7 @@
+Non-Steam Game for websites:
+
+Taiko Web
+TARGET: "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+START IN: C:\Program Files (x86)\Microsoft\Edge\Application\
+LAUNCH OPTIONS: --new-window --kiosk https://cjdgrevival.com/ --edge-kiosk-type=fullscreen 
+
