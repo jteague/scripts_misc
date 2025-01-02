@@ -1,0 +1,54 @@
+services:
+  plex:
+    image: linuxserver/plex
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+      - TZ=America/Denver
+    volumes:
+      - ~/plex/config:/config
+      - /mnt/plex-movies:/media/movies
+      - /mnt/plex-tvshows:/media/tvshows
+      - /mnt/plex-music:/media/music
+      - /mnt/bertha/media/tvshows:/media/tvshows-bertha
+      - /mnt/bertha/media/movies:/media/movies-bertha
+    restart: unless-stopped
+  
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    network_mode: none
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    command: --cleanup --schedule "0 0 3 * * *"
+  
+  nextcloud:
+    image: nextcloud
+    container_name: nextcloud
+    ports:
+      - "8080:80"
+    volumes:
+      - ~/nextcloud/config:/var/www/html/config
+      - ~/nextcloud/data:/var/www/html/data
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=
+      - MYSQL_PASSWORD=
+      - MYSQL_HOST=nextcloud-db
+    restart: unless-stopped
+
+  db:
+    image: mariadb
+    container_name: nextcloud-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=
+    volumes:
+      - ~/nextcloud/db:/var/lib/mysql
+    restart: unless-stopped
