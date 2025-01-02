@@ -20,7 +20,7 @@ rsync -avz -e "ssh -i ${SSH_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}
 # Sync Movies
 rsync -avz -e "ssh -i ${SSH_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/movie_renamed/" "${LOCAL_PATH}/movies/" --exclude-from="${EXCLUDE_FILE}"
 
-# Log start time
+# Log end time
 echo "====================================================" >> "$LOG_FILE"
 echo "$(date) - Sync finished" >> "$LOG_FILE"
 echo "====================================================" >> "$LOG_FILE"
