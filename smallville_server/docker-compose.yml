@@ -1,0 +1,125 @@
+services:
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex
+    hostname: smallville
+    restart: unless-stopped
+#    ports:
+#      - "32400:32400"
+#      - "1900:1900/udp"  # For DLNA
+#      - "3005:3005"      # For Plex Companion
+#      - "5353:5353/udp"  # For Bonjour/Avahi
+#      - "8324:8324"      # For Roku
+#      - "32410:32410/udp" # For GDM network discovery
+#      - "32412:32412/udp" # For GDM network discovery
+#      - "32413:32413/udp" # For GDM network discovery
+#      - "32414:32414/udp" # For GDM network discovery
+#      - "32469:32469"    # For DLNA
+#    networks:
+#      - traefik_network
+#      - plex_network
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+      - TZ=America/Denver
+#      - ALLOWED_NETWORKS=10.0.0.0/16,172.16.0.0/12,10.0.0.0/8
+#      - ADVERTISE_IP=http://10.0.0.235:32400/,http://plex.teague.local:32400/,https://plex.teague.local:32400/
+#      - PLEX_CLAIM=claim-g895xeW6V157tYSJ7CMj
+#      - HOSTNAME=smallville
+    volumes:
+      - /home/jteague/plex/config:/config
+      - /mnt/nas/media/movies:/media/movies
+      - /mnt/nas/media/music:/media/music
+      - /mnt/nas/media/tvshows:/media/tvshows
+
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - 443:443
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/jteague/scripts/traefik/config:/etc/traefik/config:ro
+      - /home/jteague/scripts/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /home/jteague/scripts/traefik/letsencrypt:/letsencrypt:rw
+    networks:
+      - traefik_network
+      - mariadb_network
+      - plex_network
+
+  adguardhome:
+    container_name: adguardhome
+    image: adguard/adguardhome:latest
+    restart: unless-stopped
+    volumes:
+      - /home/jteague/adguardhome/work:/opt/adguardhome/work
+      - /home/jteague/adguardhome/conf:/opt/adguardhome/conf
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp"
+      - "8090:80/tcp"
+      - "8443:443/tcp"
+      - "853:853/tcp"
+      - "784:784/udp"
+      - "8853:8853/tcp"
+    environment:
+      - TZ=America/Denver
+
+#  nextcloud:
+#    image: nextcloud:latest
+#    container_name: nextcloud
+#    restart: unless-stopped
+#    networks:
+#      - traefik_network
+#      - mariadb_network
+#    ports:
+#      - 8080:80
+#    environment:
+#      - MYSQL_DATABASE=${MYSQL_DATABASE}
+#      - MYSQL_USER=${MYSQL_USER}
+#      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+#      - MYSQL_HOST=mariadb
+#    volumes:
+#      - "/mnt/nas/photo/Amazon Photos Downloads/Pictures:/mnt/photos"
+#      - /home/jteague/nextcloud/config:/var/www/html/config
+#      - /home/jteague/nextcloud/data:/var/www/html/data
+
+#  db:
+#    image: mariadb
+#    container_name: mariadb
+#    networks:
+#      - mariadb_network
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+#      - MYSQL_DATABASE=${MYSQL_DATABASE}
+#      - MYSQL_USER=${MYSQL_USER}
+#      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+#    healthcheck:
+#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#    volumes:
+#      - /home/jteague/mariadb/db:/var/lib/mysql
+#    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    command: --cleanup --schedule "0 3 * * *"
+
+networks:
+  traefik_network:
+    name: traefik_network
+  mariadb_network:
+    name: mariadb_network
+  plex_network:
+    name: plex_network
