@@ -1,0 +1,37 @@
+http:
+  services:
+    adguardhome:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.235:8090"
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.235:8080"
+    plex:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.235:32400"
+
+  routers:
+    stable-diffusion:
+      rule: "Host(`adguard.teague.local`)"
+      service: "adguardhome"
+      entryPoints:
+        - web
+        - websecure
+      tls: {}
+    open-webui:
+      rule: "Host(`nextcloud.teague.local`)"
+      service: "nextcloud"
+      entryPoints:
+        - web
+        - websecure
+      tls: {}
+    text-gen-ui:
+      rule: "Host(`plex.teague.local`)"
+      service: "plex"
+      entryPoints:
+        - web
+        - websecure
+      tls: {}
