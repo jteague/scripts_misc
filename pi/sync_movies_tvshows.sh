@@ -15,10 +15,10 @@ echo "$(date) - Sync started" >> "$LOG_FILE"
 echo "====================================================" >> "$LOG_FILE"
 
 # Sync TV Shows
-rsync -avz -e "ssh -i ${SSH_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/tv_renamed/" "${LOCAL_PATH}/tvshows/" --exclude-from="${EXCLUDE_FILE}"
+rsync -avz -e "ssh -i ${SSH_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/tv_renamed/" "${LOCAL_PATH}/tvshows/" --exclude-from="${EXCLUDE_FILE}" --no-owner --no-group
 
 # Sync Movies
-rsync -avz -e "ssh -i ${SSH_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/movie_renamed/" "${LOCAL_PATH}/movies/" --exclude-from="${EXCLUDE_FILE}"
+rsync -avz -e "ssh -i ${SSH_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/movie_renamed/" "${LOCAL_PATH}/movies/" --exclude-from="${EXCLUDE_FILE}" --no-owner --no-group
 
 # Log end time
 echo "====================================================" >> "$LOG_FILE"
